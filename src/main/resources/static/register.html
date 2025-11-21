@@ -2,14 +2,14 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Login - EducaWeb</title>
+    <title>Cadastro - EducaWeb</title>
 
     <style>
         * { box-sizing: border-box; }
 
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: linear-gradient(135deg, #1976d2, #42a5f5);
+            background: linear-gradient(135deg, #22c55e, #16a34a);
             margin: 0;
             padding: 0;
             min-height: 100vh;
@@ -59,13 +59,14 @@
         }
 
         input:focus {
-            border-color: #1976d2;
-            box-shadow: 0 0 0 1px rgba(25,118,210,0.15);
+            border-color: #22c55e;
+            box-shadow: 0 0 0 1px rgba(34,197,94,0.25);
         }
 
         button {
             width: 100%;
             padding: 11px;
+            margin-top: 4px;
             border-radius: 8px;
             border: none;
             color: #ffffff;
@@ -77,17 +78,21 @@
         }
 
         .btn-primary {
-            background: #1976d2;
-            margin-top: 4px;
+            background: #22c55e;
         }
 
-        .btn-primary:hover { background: #1259a5; }
-        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary:hover {
+            background: #15803d;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
 
         .btn-secondary {
-            margin-top: 10px;
             background: #e2e8f0;
             color: #111827;
+            margin-top: 10px;
         }
 
         .btn-secondary:hover {
@@ -120,28 +125,27 @@
 </head>
 <body>
 <div class="card">
-    <h2>Login</h2>
-    <p class="subtitle">Entre com seu e-mail e senha para acessar os vídeos.</p>
+    <h2>Criar conta</h2>
+    <p class="subtitle">Cadastre um usuário para acessar os vídeos.</p>
 
     <label for="email">E-mail</label>
     <input type="email" id="email" placeholder="ex: teste@teste.com">
 
     <label for="senha">Senha</label>
-    <input type="password" id="senha" placeholder="Digite sua senha">
+    <input type="password" id="senha" placeholder="Digite uma senha">
 
-    <button class="btn-primary" onclick="fazerLogin()">Entrar</button>
-    <button class="btn-secondary" onclick="irParaCadastro()">Não tem conta? Cadastrar</button>
+    <button class="btn-primary" onclick="cadastrar()">Cadastrar</button>
+    <button class="btn-secondary" onclick="voltarLogin()">Voltar para o login</button>
 
     <p id="status" class="status"></p>
 
     <p class="small">
-        Esta página chama a API em <code>POST /api/auth/login</code>
-        e depois redireciona para <code>/videos.html</code>.
+        Esta página chama a API em <code>POST /api/auth/register</code>.
     </p>
 </div>
 
 <script>
-    async function fazerLogin() {
+    async function cadastrar() {
         const email = document.getElementById("email").value;
         const senha = document.getElementById("senha").value;
         const status = document.getElementById("status");
@@ -150,7 +154,7 @@
         status.textContent = "Enviando...";
 
         try {
-            const resposta = await fetch("/api/auth/login", {
+            const resposta = await fetch("/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -159,27 +163,25 @@
                 })
             });
 
-            if (resposta.ok) {
-                const data = await resposta.json();
+            if (resposta.status === 201 || resposta.status === 200) {
                 status.className = "status success";
-                status.textContent = "Login OK! Redirecionando...";
-
-                // Guarda credenciais na sessão (apenas didático)
-                sessionStorage.setItem("email", email);
-                sessionStorage.setItem("password", senha);
+                status.textContent = "Usuário cadastrado com sucesso! Redirecionando para o login...";
 
                 setTimeout(() => {
-                    window.location.href = "/videos.html";
-                }, 800);
-
-            } else if (resposta.status === 401) {
+                    window.location.href = "/login.html";
+                }, 1200);
+            } else if (resposta.status === 400) {
                 const data = await resposta.json().catch(() => null);
                 status.className = "status error";
-                status.textContent = (data && data.message) ?
-                    data.message : "Usuário ou senha inválidos.";
+                if (data && typeof data === "object") {
+                    const mensagens = Object.values(data).join(" | ");
+                    status.textContent = mensagens || "Dados inválidos.";
+                } else {
+                    status.textContent = "Dados inválidos.";
+                }
             } else {
                 status.className = "status error";
-                status.textContent = "Erro ao fazer login. Código: " + resposta.status;
+                status.textContent = "Erro ao cadastrar. Código: " + resposta.status;
             }
         } catch (e) {
             console.error(e);
@@ -188,8 +190,8 @@
         }
     }
 
-    function irParaCadastro() {
-        window.location.href = "/register.html";
+    function voltarLogin() {
+        window.location.href = "/login.html";
     }
 </script>
 </body>

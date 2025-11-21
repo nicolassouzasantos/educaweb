@@ -65,8 +65,8 @@ public class SecurityConfig {
                                 "/login.html",
                                 "/register.html",
                                 "/videos.html",
-                                "/api/auth/login",
-                                "/api/auth/register",
+                                "/api/auth/login",     // <-- LIBERADO
+                                "/api/auth/register",  // <-- LIBERADO
                                 "/css/**",
                                 "/js/**",
                                 "/images/**"
